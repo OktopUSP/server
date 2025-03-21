@@ -18,6 +18,8 @@ import (
 
 const (
 	SetOptions byte = iota
+	OnClientDelete
+	OnClientAdd
 	OnSysInfoTick
 	OnStarted
 	OnStopped
@@ -79,6 +81,8 @@ type Hook interface {
 
 	OnStarted()
 	OnStopped()
+	OnClientDelete(cl *Client)
+	OnClientAdd(cl *Client)
 	OnConnectAuthenticate(cl *Client, pk packets.Packet) bool
 	OnACLCheck(cl *Client, topic string, write bool) bool
 	OnSysInfoTick(*system.Info)
@@ -220,6 +224,22 @@ func (h *Hooks) OnStopped() {
 	for _, hook := range h.GetAll() {
 		if hook.Provides(OnStopped) {
 			hook.OnStopped()
+		}
+	}
+}
+
+func (h *Hooks) OnClientDelete(cl *Client) {
+	for _, hook := range h.GetAll() {
+		if hook.Provides(OnClientDelete) {
+			hook.OnClientDelete(cl)
+		}
+	}
+}
+
+func (h *Hooks) OnClientAdd(cl *Client) {
+	for _, hook := range h.GetAll() {
+		if hook.Provides(OnClientAdd) {
+			hook.OnClientAdd(cl)
 		}
 	}
 }

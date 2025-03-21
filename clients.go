@@ -51,6 +51,9 @@ func NewClients() *Clients {
 func (cl *Clients) Add(val *Client) {
 	cl.Lock()
 	defer cl.Unlock()
+	if val.ID != "inline" {
+		val.ops.hooks.OnClientAdd(val)
+	}
 	cl.internal[val.ID] = val
 }
 
@@ -85,6 +88,12 @@ func (cl *Clients) Len() int {
 func (cl *Clients) Delete(id string) {
 	cl.Lock()
 	defer cl.Unlock()
+	val, ok := cl.internal[id]
+	if !ok {
+		return
+	} else {
+		val.ops.hooks.OnClientDelete(val)
+	}
 	delete(cl.internal, id)
 }
 
